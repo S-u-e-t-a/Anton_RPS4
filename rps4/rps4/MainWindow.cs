@@ -1,42 +1,35 @@
 ﻿using System;
-using System.Windows.Forms;
-using System.Data.Entity;
 using System.ComponentModel;
-using System.Linq;
 using System.Data;
+using System.Data.Entity;
 using System.Drawing;
-using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace rps4
 {
     public partial class MainWindow : Form
     {
-        public ApplicationContext db; 
+        public ApplicationContext db;
         public BindingList<Train> Trains;
         public MainWindow()
         {
             InitializeComponent();
+            saveFileDialog.Filter = @"Text files(*.txt)|*.txt";
+            MaximizeBox = false;
+
             db = new ApplicationContext();
-            db.Trains.Load(); 
+            db.Trains.Load();
 
             Trains = db.Trains.Local.ToBindingList();
 
             TrainsGrid.DataSource = Trains;
-            //if (Properties.Settings.Default.ShowHelpOnStart == true)
-            //{
-            //    ShowHelpOnStartCheckBox.Checked = true;
-            //    MessageBox.Show("Работа с СУБД SQLite.\n" +
-            //                    "Данная программа хранит список товаров в магазине и \n" +
-            //                    "позволяет добавлять/удалять позиции товаров в базе данных.\n" +
-            //                    "Автор:  Ермаков Даниил Игоревич\n" +
-            //                    "Группа: 494\n" +
-            //                    "Учебное заведение: СПбГТИ (ТУ)", "Справка о программе",
-            //                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //}
-            //else
-            //{
-            //    ShowHelpOnStartCheckBox.Checked = false;
-            //}
+            if (Settings.Default.Show == true)
+            {
+                InfoToolStripMenuItem_Click(null, null);
+                ShowInfoToolStripMenuItem.Checked = true;
+            }
+            else ShowInfoToolStripMenuItem.Checked = false;
             if (TrainsGrid.RowCount == 1)
             {
                 ButtonChange.Enabled = false;
@@ -52,7 +45,7 @@ namespace rps4
                 var newEntity = new Adding();
 
                 int maxTrainID;
-                
+
                 foreach (DataGridViewRow row in TrainsGrid.Rows)
                 {
                     row.DefaultCellStyle.BackColor = Color.White;
@@ -113,7 +106,7 @@ namespace rps4
                         db.SaveChanges();
                     }
                 }
-                if(TrainsGrid.RowCount == 1)
+                if (TrainsGrid.RowCount == 1)
                 {
                     ButtonChange.Enabled = false;
                     ButtonDelete.Enabled = false;
@@ -140,7 +133,7 @@ namespace rps4
                     }
                     int changingID = int.Parse(TrainsGrid.CurrentCell.Value.ToString());
                     var changingTrain = db.Trains.SingleOrDefault(p => p.ID == changingID);
-                   
+
                     // Вывод вспомогательной формы
                     var newEntity = new Adding();
                     newEntity.Text = "Изменение сущности";
@@ -172,6 +165,48 @@ namespace rps4
                 MessageBox.Show("Вы не ввели данные.", "Ошибка!",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void InfoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Работа с СУБД SQLite.\n" +
+                                "Данная программа хранит расписание поездов и \n" +
+                                "позволяет добавлять/удалять направления в базе данных.\n" +
+                                "Автор:  Гусев Антон\n" +
+                                "Группа: 494\n" +
+                                "Учебное заведение: СПбГТИ (ТУ)", "О программе",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowInfoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ShowInfoToolStripMenuItem.Checked)
+            {
+                ShowInfoToolStripMenuItem.Checked = false;
+                Settings.Default.Show = false;
+                Settings.Default.Save();
+            }
+            else
+            {
+                ShowInfoToolStripMenuItem.Checked = true;
+                Settings.Default.Show = true;
+                Settings.Default.Save();
+
+            }
+        }
+
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            if (saveFileDialog.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            string fileOutputPath = saveFileDialog.FileName;
+            saveFileDialog.FileName = string.Empty;
+
+            string text = SaveInFile.MakeResult(Trains);
+
+            SaveInFile.SaveToFile(fileOutputPath, text);
         }
     }
 }

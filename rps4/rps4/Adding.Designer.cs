@@ -190,7 +190,7 @@
             this.costNumericUpDown.Font = new System.Drawing.Font("Noto Sans Cond", 12F, System.Drawing.FontStyle.Bold);
             this.costNumericUpDown.Location = new System.Drawing.Point(162, 205);
             this.costNumericUpDown.Maximum = new decimal(new int[] {
-            10000,
+            1000000,
             0,
             0,
             0});
