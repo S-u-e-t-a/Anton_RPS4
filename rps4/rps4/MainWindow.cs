@@ -1,80 +1,177 @@
-﻿using System.Windows.Forms;
-using System;
-using System.IO;
-using System.Drawing;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using System;
+using System.Windows.Forms;
+using System.Data.Entity;
+using System.ComponentModel;
+using System.Linq;
 using System.Data;
+using System.Drawing;
+using System.Data.Entity.Infrastructure;
 
 namespace rps4
 {
     public partial class MainWindow : Form
-    { 
+    {
+        public ApplicationContext db; 
+        public BindingList<Train> Trains;
         public MainWindow()
         {
             InitializeComponent();
+            db = new ApplicationContext();
+            db.Trains.Load(); 
+
+            Trains = db.Trains.Local.ToBindingList();
+
+            TrainsGrid.DataSource = Trains;
+            //if (Properties.Settings.Default.ShowHelpOnStart == true)
+            //{
+            //    ShowHelpOnStartCheckBox.Checked = true;
+            //    MessageBox.Show("Работа с СУБД SQLite.\n" +
+            //                    "Данная программа хранит список товаров в магазине и \n" +
+            //                    "позволяет добавлять/удалять позиции товаров в базе данных.\n" +
+            //                    "Автор:  Ермаков Даниил Игоревич\n" +
+            //                    "Группа: 494\n" +
+            //                    "Учебное заведение: СПбГТИ (ТУ)", "Справка о программе",
+            //                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //}
+            //else
+            //{
+            //    ShowHelpOnStartCheckBox.Checked = false;
+            //}
+            if (TrainsGrid.RowCount == 1)
+            {
+                ButtonChange.Enabled = false;
+                ButtonDelete.Enabled = false;
+            }
         }
 
         private void ButtonAdd_Click(object sender, EventArgs e)
         {
-            var add = new Adding();
-            add.Show();
-            add.Focus();
-        }
+            try
+            {
+                var newTrain = new Train();
+                var newEntity = new Adding();
 
-        private void ButtonChange_Click(object sender, EventArgs e)
-        {
-            var change = new Changing();
-            change.Show();
-            change.Focus();
+                int maxTrainID;
+                
+                foreach (DataGridViewRow row in TrainsGrid.Rows)
+                {
+                    row.DefaultCellStyle.BackColor = Color.White;
+                }
+                newEntity.ShowDialog();
+                if (TrainsGrid.Rows.Count != 0)
+                {
+                    // Нахождение ID для новой строки базы данных
+                    maxTrainID = TrainsGrid.Rows.Cast<DataGridViewRow>()
+                                                      .Max(r => Convert.ToInt32(r.Cells["ID"].Value)) + 1;
+                }
+                else
+                {
+                    maxTrainID = 1;
+                }
+                newTrain.ID = maxTrainID;
+                newTrain.Name = Data.Name;
+                newTrain.Departure = Data.DepartureDate + " " + Data.DepartureTime;
+                newTrain.Arrival = Data.ArrivalDate + " " + Data.ArrivalTime;
+                newTrain.Station_dep = Data.StationDep;
+                newTrain.Station_arr = Data.StationArr;
+                newTrain.Cost = Data.Cost;
+                if (String.IsNullOrEmpty(newTrain.Name) || String.IsNullOrEmpty(newTrain.Departure)
+                    || String.IsNullOrEmpty(newTrain.Arrival) || String.IsNullOrEmpty(newTrain.Station_dep)
+                    || String.IsNullOrEmpty(newTrain.Station_arr) || String.IsNullOrEmpty(newTrain.Cost.ToString()))
+                {
+                    throw new NullReferenceException();
+                }
+                db.Trains.Add(newTrain);
+                db.SaveChanges();
+                int newRowIndex = TrainsGrid.Rows.Count - 1;
+                TrainsGrid.Rows[newRowIndex].DefaultCellStyle.BackColor = Color.Green;
+                MessageBox.Show("Данные успешно добавлены и сохранены.", "Информация",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ButtonChange.Enabled = true;
+                ButtonDelete.Enabled = true;
+            }
+            catch (NullReferenceException)
+            {
+                MessageBox.Show("Вы не ввели данные.", "Ошибка!",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
         }
 
         private void ButtonDelete_Click(object sender, EventArgs e)
         {
-            var delete = new Deleting();
-            delete.Show();
-            delete.Focus();
-        }
-
-        public void MainWindow_Load(object sender, EventArgs e)
-        {
-            dgvViewer.Columns.Clear();
-            using (SQLiteConnection Connect = new SQLiteConnection(@"Data Source=C:\Users\anton\Desktop\rps4\rps4\rps4\lab4.db; Version=3;"))
+            try
             {
-                Connect.Open();
-                DataTable dTable = new DataTable();
-                string sqlQuery = @"SELECT * FROM trains";
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(sqlQuery, Connect);
-                adapter.Fill(dTable);
-
-                dgvViewer.Columns.Add("id", "ID Поезда"); dgvViewer.Columns["id"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.Columns.Add("name", "Название"); dgvViewer.Columns["name"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.Columns.Add("departure", "Время отправления"); dgvViewer.Columns["departure"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.Columns.Add("arrival", "Время прибытия"); dgvViewer.Columns["arrival"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.Columns.Add("station_dep", "Откуда"); dgvViewer.Columns["station_dep"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.Columns.Add("station_arr", "Куда"); dgvViewer.Columns["station_arr"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.Columns.Add("cost", "Цена"); dgvViewer.Columns["cost"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                dgvViewer.ReadOnly = true;
-
-                if (dTable.Rows.Count > 0)
+                string Choose = TrainsGrid.CurrentCell.OwningColumn.Name;
+                if (Choose == "ID")
                 {
-                    dgvViewer.Rows.Clear();
-
-                    for (int i = 0; i < dTable.Rows.Count; i++)
-                        dgvViewer.Rows.Add(dTable.Rows[i].ItemArray);
+                    if (DialogResult.Yes == MessageBox.Show("Вы уверены, что хотите удалить направление из базы?", "Подтвердите действие",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                    {
+                        int deleting = int.Parse(TrainsGrid.CurrentCell.Value.ToString());
+                        db.Trains.Remove(db.Trains.Find(deleting));
+                        db.SaveChanges();
+                    }
                 }
-                else
-                    MessageBox.Show("Database is empty");
-                Connect.Close();
+                if(TrainsGrid.RowCount == 1)
+                {
+                    ButtonChange.Enabled = false;
+                    ButtonDelete.Enabled = false;
+                }
             }
+            catch (NullReferenceException)
+            {
+                MessageBox.Show("Нет строк для удаления.",
+                                "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
         }
 
-
-
-        private void ButtonUpdateTable_Click(object sender, EventArgs e)
+        private void ButtonChange_Click(object sender, EventArgs e)
         {
-            MainWindow_Load(null, null);
+            try
+            {
+                string columnNameOfChosenCell = TrainsGrid.CurrentCell.OwningColumn.Name;
+                if (columnNameOfChosenCell == "ID")
+                {
+                    foreach (DataGridViewRow row in TrainsGrid.Rows)
+                    {
+                        row.DefaultCellStyle.BackColor = Color.White;
+                    }
+                    int changingID = int.Parse(TrainsGrid.CurrentCell.Value.ToString());
+                    var changingTrain = db.Trains.SingleOrDefault(p => p.ID == changingID);
+                   
+                    // Вывод вспомогательной формы
+                    var newEntity = new Adding();
+                    newEntity.Text = "Изменение сущности";
+                    newEntity.ShowDialog();
+
+                    // Изменение сущности
+                    changingTrain.Name = Data.Name;
+                    changingTrain.Departure = Data.DepartureDate + " " + Data.DepartureTime;
+                    changingTrain.Arrival = Data.ArrivalDate + " " + Data.ArrivalTime;
+                    changingTrain.Station_dep = Data.StationDep;
+                    changingTrain.Station_arr = Data.StationArr;
+                    changingTrain.Cost = Data.Cost;
+                    if (String.IsNullOrEmpty(changingTrain.Name) || String.IsNullOrEmpty(changingTrain.Departure)
+                    || String.IsNullOrEmpty(changingTrain.Arrival) || String.IsNullOrEmpty(changingTrain.Station_dep)
+                    || String.IsNullOrEmpty(changingTrain.Station_arr) || String.IsNullOrEmpty(changingTrain.Cost.ToString()))
+                    {
+                        throw new NullReferenceException();
+                    }
+                    // Сохранение изменений
+                    db.SaveChanges();
+                    int changedRowIndex = TrainsGrid.CurrentCell.RowIndex;
+                    TrainsGrid.Rows[changedRowIndex].DefaultCellStyle.BackColor = Color.GreenYellow;
+                    MessageBox.Show("Данные успешно изменены и сохранены.", "Информация",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (NullReferenceException)
+            {
+                MessageBox.Show("Вы не ввели данные.", "Ошибка!",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

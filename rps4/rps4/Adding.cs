@@ -1,37 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Data.SQLite;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace rps4
 {
     public partial class Adding : Form
     {
-        SQLiteCommand cmd;
-        private SQLiteConnection m_dbConn = new SQLiteConnection();
         public Adding()
         {
             InitializeComponent();
             MaximizeBox = false;
 
+            timePickerDep.Format = DateTimePickerFormat.Custom;
+            timePickerDep.CustomFormat = "HH:mm";
+            timePickerDep.ShowUpDown = true;
+
+            timePickerArr.Format = DateTimePickerFormat.Custom;
+            timePickerArr.CustomFormat = "HH:mm";
+            timePickerArr.ShowUpDown = true;
+
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            using (SQLiteConnection conn = new SQLiteConnection(@"Data Source=C:\Users\anton\Desktop\rps4\rps4\rps4\lab4.db; Version=3;"))
+
+            if (String.IsNullOrWhiteSpace(textBoxName.Text) || String.IsNullOrWhiteSpace(textBoxDep.Text) || String.IsNullOrWhiteSpace(textBoxArr.Text))
             {
-                using (cmd = new SQLiteCommand("INSERT INTO trains ('Name', 'Departure', 'Arrival', 'Station_dep', 'Station_arr', 'Cost') values ('" + textBoxName.Text + "' , '" + dateTimePickerDep.Value.ToLongDateString() + "', '" + dateTimePickerArr.Value.ToLongDateString() + "', '" + textBoxDep.Text + "', '" + textBoxArr.Text + "', '" + textBoxCost.Text + "')", conn))
-                {
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                    conn.Close();
-                }
+                MessageBox.Show("Вы ввели не все необходимые данные", "Ошибка",
+                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if ((datePickerDep.Value.Date < datePickerArr.Value.Date) 
+                || (datePickerDep.Value.Date == datePickerArr.Value.Date && 
+                (timePickerDep.Value.Hour <= timePickerArr.Value.Hour && timePickerDep.Value.Minute < timePickerArr.Value.Minute)
+                || (timePickerDep.Value.Hour < timePickerArr.Value.Hour && timePickerDep.Value.Minute <= timePickerArr.Value.Minute)))
+            {
+                Data.Name = textBoxName.Text;
+
+                Data.DepartureDate = datePickerDep.Value.ToShortDateString();
+                Data.DepartureTime = timePickerDep.Value.ToShortTimeString();
+
+                Data.ArrivalDate = datePickerArr.Value.ToShortDateString();
+                Data.ArrivalTime = timePickerArr.Value.ToShortTimeString();
+
+                Data.StationDep = textBoxDep.Text;
+                Data.StationArr = textBoxArr.Text;
+
+                Data.Cost = int.Parse(costNumericUpDown.Text);
+                Close();
+
+            }
+            else
+            {
+                MessageBox.Show("Дата и время прибытия не могут быть раньше или равны дате и времени отправления!", "Ошибка",
+                   MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             }
         }
     }

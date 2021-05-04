@@ -71,18 +71,8 @@
     <Compile Include="Adding.Designer.cs">
       <DependentUpon>Adding.cs</DependentUpon>
     </Compile>
-    <Compile Include="Changing.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Changing.Designer.cs">
-      <DependentUpon>Changing.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Deleting.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Deleting.Designer.cs">
-      <DependentUpon>Deleting.cs</DependentUpon>
-    </Compile>
+    <Compile Include="ApplicationContext.cs" />
+    <Compile Include="Data.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,14 +81,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Train.cs" />
     <EmbeddedResource Include="Adding.resx">
       <DependentUpon>Adding.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Changing.resx">
-      <DependentUpon>Changing.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Deleting.resx">
-      <DependentUpon>Deleting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
@@ -112,7 +97,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <None Include="lab4.db" />
+    <None Include="lab4.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
