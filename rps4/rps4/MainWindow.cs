@@ -41,48 +41,32 @@ namespace rps4
         {
             try
             {
-                var newTrain = new Train();
-                var newEntity = new Adding();
-
-                int maxTrainID;
+                var newEntity = new Adding(new Train());
 
                 foreach (DataGridViewRow row in TrainsGrid.Rows)
                 {
                     row.DefaultCellStyle.BackColor = Color.White;
                 }
                 newEntity.ShowDialog();
-                
-                if (TrainsGrid.Rows.Count != 0)
-                {
-                    // Нахождение ID для новой строки базы данных
-                    maxTrainID = TrainsGrid.Rows.Cast<DataGridViewRow>()
-                                                      .Max(r => Convert.ToInt32(r.Cells["ID"].Value)) + 1;
-                }
-                else
-                {
-                    maxTrainID = 1;
-                }
-                newTrain.ID = maxTrainID;
-                newTrain.Name = Data.Name;
-                newTrain.Departure = Data.DepartureDate + " " + Data.DepartureTime;
-                newTrain.Arrival = Data.ArrivalDate + " " + Data.ArrivalTime;
-                newTrain.Station_dep = Data.StationDep;
-                newTrain.Station_arr = Data.StationArr;
-                newTrain.Cost = Data.Cost;
-                if (String.IsNullOrEmpty(newTrain.Name) || String.IsNullOrEmpty(newTrain.Departure)
-                    || String.IsNullOrEmpty(newTrain.Arrival) || String.IsNullOrEmpty(newTrain.Station_dep)
-                    || String.IsNullOrEmpty(newTrain.Station_arr) || String.IsNullOrEmpty(newTrain.Cost.ToString()))
+             
+                if (String.IsNullOrEmpty(newEntity.train.Name) || String.IsNullOrEmpty(newEntity.train.Departure)
+                    || String.IsNullOrEmpty(newEntity.train.Arrival) || String.IsNullOrEmpty(newEntity.train.Station_dep)
+                    || String.IsNullOrEmpty(newEntity.train.Station_arr) || String.IsNullOrEmpty(newEntity.train.Cost.ToString()))
                 {
                     throw new NullReferenceException();
                 }
-                db.Trains.Add(newTrain);
-                db.SaveChanges();
-                int newRowIndex = TrainsGrid.Rows.Count - 1;
-                TrainsGrid.Rows[newRowIndex].DefaultCellStyle.BackColor = Color.Green;
-                MessageBox.Show("Данные успешно добавлены и сохранены.", "Информация",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-                ButtonChange.Enabled = true;
-                ButtonDelete.Enabled = true;
+                else
+                {
+                    db.Trains.Add(newEntity.train);
+                    db.SaveChanges();
+                    int newRowIndex = TrainsGrid.Rows.Count - 1;
+                    TrainsGrid.Rows[newRowIndex].DefaultCellStyle.BackColor = Color.Green;
+                    MessageBox.Show("Данные успешно добавлены и сохранены.", "Информация",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ButtonChange.Enabled = true;
+                    ButtonDelete.Enabled = true;
+                }
+
             }
             catch (NullReferenceException)
             {
@@ -130,41 +114,33 @@ namespace rps4
         {
             try
             {
-                string columnNameOfChosenCell = TrainsGrid.CurrentCell.OwningColumn.Name;
-                if (columnNameOfChosenCell == "ID")
+                Train columnNameOfChosenCell = TrainsGrid.CurrentRow.DataBoundItem as Train;
+
+                foreach (DataGridViewRow row in TrainsGrid.Rows)
                 {
-                    foreach (DataGridViewRow row in TrainsGrid.Rows)
-                    {
-                        row.DefaultCellStyle.BackColor = Color.White;
-                    }
-                    int changingID = int.Parse(TrainsGrid.CurrentCell.Value.ToString());
-                    var changingTrain = db.Trains.SingleOrDefault(p => p.ID == changingID);
-
-                    // Вывод вспомогательной формы
-                    var newEntity = new Adding();
-                    newEntity.Text = "Изменение сущности";
-                    newEntity.ShowDialog();
-
-                    // Изменение сущности
-                    changingTrain.Name = Data.Name;
-                    changingTrain.Departure = Data.DepartureDate + " " + Data.DepartureTime;
-                    changingTrain.Arrival = Data.ArrivalDate + " " + Data.ArrivalTime;
-                    changingTrain.Station_dep = Data.StationDep;
-                    changingTrain.Station_arr = Data.StationArr;
-                    changingTrain.Cost = Data.Cost;
-                    if (String.IsNullOrEmpty(changingTrain.Name) || String.IsNullOrEmpty(changingTrain.Departure)
-                    || String.IsNullOrEmpty(changingTrain.Arrival) || String.IsNullOrEmpty(changingTrain.Station_dep)
-                    || String.IsNullOrEmpty(changingTrain.Station_arr) || String.IsNullOrEmpty(changingTrain.Cost.ToString()))
-                    {
-                        throw new NullReferenceException();
-                    }
-                    // Сохранение изменений
-                    db.SaveChanges();
-                    int changedRowIndex = TrainsGrid.CurrentCell.RowIndex;
-                    TrainsGrid.Rows[changedRowIndex].DefaultCellStyle.BackColor = Color.GreenYellow;
-                    MessageBox.Show("Данные успешно изменены и сохранены.", "Информация",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    row.DefaultCellStyle.BackColor = Color.White;
                 }
+
+                // Вывод вспомогательной формы
+                var newEntity = new Adding(columnNameOfChosenCell);
+                newEntity.Text = "Изменение сущности";
+                newEntity.ShowDialog();
+
+                // Изменение сущности
+
+                if (String.IsNullOrEmpty(newEntity.train.Name) || String.IsNullOrEmpty(newEntity.train.Departure)
+                || String.IsNullOrEmpty(newEntity.train.Arrival) || String.IsNullOrEmpty(newEntity.train.Station_dep)
+                || String.IsNullOrEmpty(newEntity.train.Station_arr) || String.IsNullOrEmpty(newEntity.train.Cost.ToString()))
+                {
+                    throw new NullReferenceException();
+                }
+                // Сохранение изменений
+                db.SaveChanges();
+                int changedRowIndex = TrainsGrid.CurrentCell.RowIndex;
+                TrainsGrid.Rows[changedRowIndex].DefaultCellStyle.BackColor = Color.GreenYellow;
+                MessageBox.Show("Данные успешно изменены и сохранены.", "Информация",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             }
             catch (NullReferenceException)
             {

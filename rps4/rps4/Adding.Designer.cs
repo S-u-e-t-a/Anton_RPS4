@@ -194,11 +194,6 @@
             0,
             0,
             0});
-            this.costNumericUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             this.costNumericUpDown.Name = "costNumericUpDown";
             this.costNumericUpDown.Size = new System.Drawing.Size(254, 29);
             this.costNumericUpDown.TabIndex = 17;

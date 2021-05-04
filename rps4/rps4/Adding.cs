@@ -5,7 +5,8 @@ namespace rps4
 {
     public partial class Adding : Form
     {
-        public Adding()
+        public Train train;
+        public Adding(Train tr)
         {
             InitializeComponent();
             MaximizeBox = false;
@@ -17,6 +18,13 @@ namespace rps4
             timePickerArr.Format = DateTimePickerFormat.Custom;
             timePickerArr.CustomFormat = "HH:mm";
             timePickerArr.ShowUpDown = true;
+            train = tr;
+
+            textBoxName.Text = train.Name;
+
+            textBoxDep.Text = train.Station_dep;
+            textBoxArr.Text = train.Station_arr;
+            costNumericUpDown.Value = train.Cost;
 
         }
 
@@ -28,23 +36,21 @@ namespace rps4
                 MessageBox.Show("Вы ввели не все необходимые данные", "Ошибка",
                        MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if ((datePickerDep.Value.Date < datePickerArr.Value.Date) 
-                || (datePickerDep.Value.Date == datePickerArr.Value.Date && 
+            else if ((datePickerDep.Value.Date < datePickerArr.Value.Date)
+                || (datePickerDep.Value.Date == datePickerArr.Value.Date &&
                 (timePickerDep.Value.Hour <= timePickerArr.Value.Hour && timePickerDep.Value.Minute < timePickerArr.Value.Minute)
                 || (timePickerDep.Value.Hour < timePickerArr.Value.Hour && timePickerDep.Value.Minute <= timePickerArr.Value.Minute)))
             {
-                Data.Name = textBoxName.Text;
+                train.Name = textBoxName.Text;
 
-                Data.DepartureDate = datePickerDep.Value.ToShortDateString();
-                Data.DepartureTime = timePickerDep.Value.ToShortTimeString();
+                train.Departure = datePickerDep.Value.ToShortDateString() + " " + timePickerDep.Value.ToShortTimeString();
 
-                Data.ArrivalDate = datePickerArr.Value.ToShortDateString();
-                Data.ArrivalTime = timePickerArr.Value.ToShortTimeString();
+                train.Arrival = datePickerArr.Value.ToShortDateString() + " " + timePickerArr.Value.ToShortTimeString();
 
-                Data.StationDep = textBoxDep.Text;
-                Data.StationArr = textBoxArr.Text;
+                train.Station_dep = textBoxDep.Text;
+                train.Station_arr = textBoxArr.Text;
 
-                Data.Cost = int.Parse(costNumericUpDown.Text);
+                train.Cost = int.Parse(costNumericUpDown.Text);
                 Close();
             }
             else
