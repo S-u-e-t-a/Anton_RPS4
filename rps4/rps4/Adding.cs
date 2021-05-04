@@ -46,13 +46,11 @@ namespace rps4
 
                 Data.Cost = int.Parse(costNumericUpDown.Text);
                 Close();
-
             }
             else
             {
                 MessageBox.Show("Дата и время прибытия не могут быть раньше или равны дате и времени отправления!", "Ошибка",
                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
         }
     }

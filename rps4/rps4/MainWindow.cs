@@ -51,6 +51,7 @@ namespace rps4
                     row.DefaultCellStyle.BackColor = Color.White;
                 }
                 newEntity.ShowDialog();
+                
                 if (TrainsGrid.Rows.Count != 0)
                 {
                     // Нахождение ID для новой строки базы данных
@@ -89,6 +90,11 @@ namespace rps4
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+        }
+
+        private void NewEntity_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void ButtonDelete_Click(object sender, EventArgs e)

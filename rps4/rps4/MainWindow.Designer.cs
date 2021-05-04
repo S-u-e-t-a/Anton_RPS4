@@ -48,6 +48,7 @@
             this.TrainsGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TrainsGrid.Location = new System.Drawing.Point(12, 27);
             this.TrainsGrid.Name = "TrainsGrid";
+            this.TrainsGrid.ReadOnly = true;
             this.TrainsGrid.Size = new System.Drawing.Size(753, 283);
             this.TrainsGrid.TabIndex = 0;
             // 
@@ -107,7 +108,7 @@
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.SaveToolStripMenuItem.Text = "Сохранить данные";
             this.SaveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
