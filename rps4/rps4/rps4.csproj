@@ -72,6 +72,7 @@
       <DependentUpon>Adding.cs</DependentUpon>
     </Compile>
     <Compile Include="ApplicationContext.cs" />
+    <Compile Include="InteractionDB.cs" />
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>

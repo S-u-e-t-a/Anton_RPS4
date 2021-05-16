@@ -57,8 +57,7 @@ namespace rps4
                 }
                 else
                 {
-                    db.Trains.Add(newEntity.train);
-                    db.SaveChanges();
+                    InteractionDB.Add(newEntity.train, db);
                     int newRowIndex = TrainsGrid.Rows.Count - 1;
                     TrainsGrid.Rows[newRowIndex].DefaultCellStyle.BackColor = Color.Green;
                     MessageBox.Show("Данные успешно добавлены и сохранены.", "Информация",
@@ -76,10 +75,6 @@ namespace rps4
 
         }
 
-        private void NewEntity_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
 
         private void ButtonDelete_Click(object sender, EventArgs e)
         {
@@ -92,8 +87,8 @@ namespace rps4
                         MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                     {
                         int deleting = int.Parse(TrainsGrid.CurrentCell.Value.ToString());
-                        db.Trains.Remove(db.Trains.Find(deleting));
-                        db.SaveChanges();
+                        InteractionDB.Delete(deleting, db);
+
                     }
                 }
                 if (TrainsGrid.RowCount == 1)
@@ -122,8 +117,10 @@ namespace rps4
                 }
 
                 // Вывод вспомогательной формы
-                var newEntity = new Adding(columnNameOfChosenCell);
-                newEntity.Text = "Изменение сущности";
+                var newEntity = new Adding(columnNameOfChosenCell)
+                {
+                    Text = "Изменение сущности"
+                };
                 newEntity.ShowDialog();
 
                 // Изменение сущности

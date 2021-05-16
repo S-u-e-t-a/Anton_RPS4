@@ -6,6 +6,7 @@ namespace rps4
     {
         public ApplicationContext() : base("DefaultConnection")
         {
+            var ensureDLLIsCopied = System.Data.Entity.SqlServer.SqlProviderServices.Instance;
         }
         public DbSet<Train> Trains { get; set; }
     }
